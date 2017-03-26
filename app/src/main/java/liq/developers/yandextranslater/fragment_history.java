@@ -1,0 +1,236 @@
+package liq.developers.yandextranslater;
+
+import android.app.Activity;
+import android.content.DialogInterface;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
+import android.widget.TextView;
+import android.widget.TwoLineListItem;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+
+/**
+ * Created by Michael on 16.03.2017.
+ */
+
+public class fragment_history extends Fragment {
+    public static fragment_history newInstance() {
+        return new fragment_history();
+    }
+
+    public fragment_history() { }
+
+    static SimpleAdapter adapter;
+    Activity a;
+    static LinkedHashMap<Integer, Map<String, String>> mapHist;
+    static ArrayList<Map<String, String>> arrListHist;
+    Button clearHistBtn;
+    static TextView emptyHistTv;
+    static DataBase h; // экземляр класса дб для хранения history. Инициализируется
+                        // в MainActivity, т.к. должен срабатывать раньше чем местный onCreateView
+    static ListView lvHistory;
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+
+        View rootView = inflater.inflate(R.layout.fragment_history, container, false);
+
+        lvHistory = (ListView) rootView.findViewById(R.id.lvHistory);
+        emptyHistTv = (TextView) rootView.findViewById(R.id.emptyHistTv);
+        a = getActivity();
+        arrListHist = new ArrayList<>();
+
+        clearHistBtn = (Button) rootView.findViewById(R.id.clearHistBtn);
+        clearHistBtn.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(
+                        getActivity());
+                alert.setTitle(R.string.confirmDeletionTitle);
+                alert.setMessage(R.string.confirmDeletionHistoryMessage);
+                alert.setPositiveButton(R.string.confirmDeletionAnswerYes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        clearAsync clearAsync = new clearAsync();
+                        clearAsync.execute();
+                        dialog.dismiss();
+                    }
+                });
+                alert.setNegativeButton(R.string.confirmDeletionAnswerNo, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                alert.show();
+            }
+
+        });
+
+        lvHistory.setLongClickable(true); //Удаление одного элемента по долгому нажатию на него
+        lvHistory.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            public boolean onItemLongClick(final AdapterView<?> parent, final View v, final int position, long id) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(
+                        getActivity());
+                alert.setTitle(R.string.confirmDeletionTitle);
+                alert.setMessage(R.string.confirmDeletionRecordMessage);
+                alert.setPositiveButton(R.string.confirmDeletionAnswerYes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        TwoLineListItem tlli = (TwoLineListItem)v;
+                        TextView topTv = (TextView) tlli.getChildAt(0);
+                        final String topText = topTv.getText().toString();
+
+                        TextView botTv = (TextView) tlli.getChildAt(1);
+                        final String botText = botTv.getText().toString();
+
+
+                        deleteAsync deleteAsync = new deleteAsync();
+                        deleteAsync.execute(getListItemId(new HashMap<String, String>() {
+                            {
+                                put("originalText",topText);
+                                put("translatedText",botText);
+                            }}));
+
+                        dialog.dismiss();
+
+                    }
+                });
+                alert.setNegativeButton(R.string.confirmDeletionAnswerNo, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                alert.show();
+                return true;
+            }
+        });
+
+         // adapter.notifyDataSetChanged() не сработал
+
+
+        reloadAsync reloadAsync = new reloadAsync();
+        reloadAsync.execute();
+
+
+        return rootView;
+    }
+
+    public static void updateAdapter(Activity a){
+
+        lvHistory.setAdapter(null);
+        arrListHist = null;
+        arrListHist = new ArrayList<>();
+
+        mapHist = h.getDbMap();
+
+        for (Integer s : mapHist.keySet()) {
+            arrListHist.add(mapHist.get(s));
+        }
+        Collections.reverse(arrListHist);  // Чтобы сохранялась хронология
+
+        adapter = new SimpleAdapter(a, arrListHist, android.R.layout.simple_list_item_2,
+                new String[]{"originalText", "translatedText"},
+                new int[]{android.R.id.text1, android.R.id.text2});
+
+        lvHistory.setAdapter(adapter);
+
+        if (adapter.isEmpty()) {
+            emptyHistTv.setVisibility(View.VISIBLE);
+        }
+        else {
+            emptyHistTv.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    public String getListItemId(Map<String, String> listitem){
+
+        mapHist = h.getDbMap();
+        for(Map.Entry<Integer, Map<String, String>> entry : mapHist.entrySet())
+        {
+            if (entry.getValue().equals(listitem))
+                return entry.getKey().toString();
+        }
+        return "0";
+    }
+
+
+    //Классы для работы с БД в новом потоке
+
+    //Класс addAsync находится в fragment_translate,
+    //т.к. добавление происходит отттуда
+    private class deleteAsync extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String[] params) {
+            try {
+                h.delete(params[0]);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String message) {
+            updateAdapter(a);
+        }
+    }
+
+    private class clearAsync extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String[] params) {
+            try {
+                h.clear();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String message) {
+            updateAdapter(a);
+        }
+    }
+
+    private class reloadAsync extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String[] params) {
+            try {
+                h.reload();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String message) {
+            updateAdapter(a);
+        }
+    }
+
+
+
+}

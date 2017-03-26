@@ -1,0 +1,121 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="liq.developers.yandextranslater.fragment_history">
+
+
+    <LinearLayout
+        android:id="@+id/langChooseSection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
+
+        <Spinner
+            android:id="@+id/langChooseFrom_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_weight="6"
+            android:textAlignment="textEnd"
+             />
+
+        <Button
+
+            android:layout_width="45dp"
+            android:layout_height="25dp"
+            android:layout_gravity="center"
+            android:background="@drawable/arrowicon"
+            android:id="@+id/reverseBtn" />
+
+        <Spinner
+            android:id="@+id/langChooseInto_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_weight="6"
+            android:textAlignment="textStart"/>
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/framelayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/langChooseSection" >
+
+        <Button
+            android:id="@+id/btn_clear"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="end"
+            android:layout_marginTop="2dp"
+            android:layout_marginRight="2dp"
+            android:alpha="0.5"
+            android:background="@android:drawable/btn_dialog" />
+
+        <EditText
+            android:id="@+id/inputText"
+            android:layout_width="match_parent"
+            android:layout_height="105dp"
+            android:hint="Введите текст для перевода"
+            android:layout_below="@+id/langChooseSection"
+            android:gravity="start"
+            android:background="@drawable/textview_border"
+            android:paddingRight="18dp"
+            android:paddingLeft="4dp"
+            android:scrollbars="vertical"
+            android:maxLength="9999"
+            />
+
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/framelayout2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/framelayout" >
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_margin="@dimen/fab_margin"
+            android:visibility="invisible"
+            android:src="@drawable/faviconstaroff"
+            app:backgroundTint="@color/fabColor"
+            />
+
+        <TextView
+            android:id="@+id/copyrightsTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|bottom"
+            android:textSize="14dp"
+            android:text="@string/copyrights"
+            />
+
+        <TextView
+            android:id="@+id/outputTextView"
+            android:layout_width="match_parent"
+            android:layout_marginTop="15dp"
+            android:layout_height="match_parent"
+            android:textSize="25dp"
+            android:padding="4dp"
+            />
+
+
+    </FrameLayout>
+
+
+
+
+</RelativeLayout>

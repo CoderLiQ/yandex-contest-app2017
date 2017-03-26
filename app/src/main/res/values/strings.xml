@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">YandexContestApp</string>
+    <string name="copyrights">Переведено сервисом<a href="http://translate.yandex.ru/"> «Яндекс.Переводчик»</a></string>
+    <string name="confirmDeletionTitle">Внимание</string>
+    <string name="confirmDeletionFavouritesMessage">Очистить избранное?</string>
+    <string name="confirmDeletionAnswerYes">Да</string>
+    <string name="confirmDeletionAnswerNo">Нет</string>
+    <string name="confirmDeletionRecordMessage">Удалить запись?</string>
+    <string name="confirmDeletionHistoryMessage">Очистить историю?</string>
+    <string name="addedToFavourites">Добавлено в избранное</string>
+    <string name="sectionNameTranslation">ПЕРЕВОД</string>
+    <string name="sectionHistory">ИСТОРИЯ</string>
+    <string name="sectionFavourites">ИЗБРАННОЕ</string>
+    <string name="listIsEmpty">Здесь пока нет записей</string>
+
+    <string-array name="langs_array">
+        <item>Русский</item>
+        <item>Английский</item>
+        <item>Немецкий</item>
+        <item>Китайский</item>
+    </string-array>
+
+</resources>
